@@ -1,0 +1,108 @@
+package {
+    default_applicable_licenses: ["external_iproute2_ip_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_iproute2_ip_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-LGPL",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "NOTICE",
+    ],
+}
+
+NETNS_RUN_DIR = "/mnt/run"
+
+cc_defaults {
+    name: "iproute2_defaults",
+
+    header_libs: ["iproute2_headers"],
+
+    cflags: [
+        "-O2",
+        "-g",
+        "-W",
+        "-Wall",
+        "-Wno-pointer-arith",
+        "-Wno-sign-compare",
+        "-Wno-unused-parameter",
+        "-Werror",
+
+        "-DHAVE_ERRNO_H",
+        "-DHAVE_EXT2_IOCTLS",
+        "-DHAVE_GETPAGESIZE",
+        "-DHAVE_LINUX_FD_H",
+        "-DHAVE_LSEEK64",
+        "-DHAVE_LSEEK64_PROTOTYPE",
+        "-DHAVE_MMAP",
+        "-DHAVE_NETINET_IN_H",
+        "-DHAVE_SELINUX",
+        "-DHAVE_SETNS",
+        "-DHAVE_STDLIB_H",
+        "-DHAVE_STRDUP",
+        "-DHAVE_SYS_IOCTL_H",
+        "-DHAVE_SYS_MMAN_H",
+        "-DHAVE_SYS_MOUNT_H",
+        "-DHAVE_SYS_PRCTL_H",
+        "-DHAVE_SYS_RESOURCE_H",
+        "-DHAVE_SYS_SELECT_H",
+        "-DHAVE_SYS_STAT_H",
+        "-DHAVE_SYS_TYPES_H",
+        "-DHAVE_TYPE_SSIZE_T",
+        "-DHAVE_UNISTD_H",
+        "-DHAVE_UTIME_H",
+
+        "-DNO_SHARED_LIBS",
+    ],
+}
+
+cc_binary {
+    name: "ip",
+    defaults: ["iproute2_defaults"],
+
+    // ordering affects link order, so cannot be quite fully sorted
+    srcs: [
+        "ipneigh.c",
+        "dnet_ntop.c",
+        "ipx_ntop.c",
+        "ipx_pton.c",
+        "libnetlink.c",
+        "ll_map.o mpls_ntop.c",
+    ],
+
+    cflags: [
+        "-Wno-implicit-function-declaration",
+        "-Wno-int-conversion",
+        "-Wno-missing-field-initializers",
+        "-D_GNU_SOURCE",
+        "-DNETNS_RUN_DIR=\"" + NETNS_RUN_DIR + "\"",
+    ],
+
+    ldflags: [
+        "-Wl,-export-dynamic",
+        "-Wl,--no-gc-sections",
+    ],
+
+    sanitize: {
+        memtag_heap: true,
+    },
+}
